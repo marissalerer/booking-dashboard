@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist Booking Dashboard | The Listening Booth</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--orange:#DF6F11;--cream:#F4E7D4;--med-grey:#444;--dark-grey:#2B2B2B;--white:#FFF;--black:#000;--teal:#29AEC0;--purple:#A13D85;--yellow:#FCD110;--green:#4CAF50}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Poppins,sans-serif;background:var(--dark-grey);color:var(--cream);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,rgba(223,111,17,.04) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
+.container{max-width:1500px;margin:0 auto;padding:0 24px 60px;position:relative;z-index:1}
+header{background:var(--black);margin:0 -24px 40px;padding:0 24px;border-bottom:4px solid var(--orange)}
+.header-inner{max-width:1500px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:30px;padding:28px 0 24px;flex-wrap:wrap}
+.logo-block h1{font-size:clamp(1.6rem,3vw,2.6rem);font-weight:900;line-height:1;color:var(--orange);text-transform:uppercase;letter-spacing:-.5px}
+.logo-block .dash-label{font-size:.7rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--cream);opacity:.6;margin-top:4px}
+.stats-row{display:flex;gap:6px;flex-wrap:wrap}
+.stat-chip{background:var(--dark-grey);border:1px solid var(--med-grey);border-radius:6px;padding:10px 18px;text-align:center;min-width:85px;transition:border-color .2s ease}
+.stat-chip:hover{border-color:var(--orange)}
+.stat-chip.booked-chip{background:rgba(76,175,80,.15);border-color:var(--green)}
+.stat-chip.booked-chip:hover{border-color:var(--green)}
+.stat-chip .num{font-size:1.6rem;font-weight:800;color:var(--orange);line-height:1}
+.stat-chip.booked-chip .num{color:var(--green)}
+.stat-chip .lbl{font-size:.65rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--cream);opacity:.55;margin-top:2px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.search-wrap{flex:1;min-width:220px;position:relative}
+.search-wrap::before{content:'♪';position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--orange);font-size:1rem;pointer-events:none}
+input[type=text]{width:100%;padding:12px 16px 12px 40px;background:var(--black);border:1.5px solid var(--med-grey);color:var(--cream);font-family:Poppins,sans-serif;font-size:.9rem;font-weight:400;border-radius:6px;transition:border-color .2s ease}
+input[type=text]:focus{outline:0;border-color:var(--orange)}
+input::placeholder{color:rgba(244,231,212,.3)}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter-btn{padding:10px 18px;background:0 0;border:1.5px solid var(--med-grey);color:var(--cream);font-family:Poppins,sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;border-radius:5px;transition:all .2s ease}
+.filter-btn:hover{border-color:var(--orange);color:var(--orange)}
+.filter-btn.active{background:var(--orange);border-color:var(--orange);color:var(--black)}
+.filter-btn.booked-filter{background:var(--green);border-color:var(--green);color:var(--white);font-weight:700}
+.filter-btn.booked-filter:hover{background:#5cb85c;border-color:#5cb85c}
+.filter-btn.booked-filter.active{background:var(--green);border-color:var(--green);box-shadow:0 0 12px rgba(76,175,80,.5)}
+.filter-btn.new-filter{background:var(--yellow);border-color:var(--yellow);color:var(--black);font-weight:700}
+.filter-btn.new-filter:hover{background:#ffdb3a;border-color:#ffdb3a}
+.filter-btn.new-filter.active{background:var(--yellow);border-color:var(--yellow);box-shadow:0 0 12px rgba(252,209,16,.5)}
+.filter-btn.contacted-filter{background:var(--orange);border-color:var(--orange);color:var(--white);font-weight:700}
+.filter-btn.contacted-filter:hover{background:#ef801b;border-color:#ef801b}
+.filter-btn.contacted-filter.active{background:var(--orange);border-color:var(--orange);box-shadow:0 0 12px rgba(223,111,17,.5)}
+.filter-btn.opener-filter{background:var(--purple);border-color:var(--purple);color:var(--white);font-weight:700}
+.filter-btn.opener-filter:hover{background:#b14d95;border-color:#b14d95}
+.filter-btn.opener-filter.active{background:var(--purple);border-color:var(--purple);box-shadow:0 0 12px rgba(161,61,133,.5)}
+.table-wrap{background:var(--black);border:1px solid #333;border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+thead{background:var(--orange);position:sticky;top:0;z-index:10}
+th{padding:14px;text-align:left;font-family:Poppins,sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--black);cursor:pointer;user-select:none;transition:background .2s ease;white-space:nowrap}
+th:hover{background:rgba(0,0,0,.12)}
+th.sortable::after{content:' ↕';opacity:.45}
+th.sorted-desc::after{content:' ↓';opacity:1}
+th.sorted-asc::after{content:' ↑';opacity:1}
+tbody tr{border-bottom:1px solid #1f1f1f;cursor:pointer;transition:background .15s ease}
+tbody tr:hover{background:rgba(223,111,17,.08)}
+tbody tr.expanded{background:rgba(223,111,17,.12)}
+tbody tr.booked-row{background:rgba(76,175,80,.08);border-left:3px solid var(--green)}
+tbody tr.booked-row:hover{background:rgba(76,175,80,.15)}
+tbody tr.new-inquiry{background:rgba(252,209,16,.05);border-left:3px solid var(--yellow)}
+tbody tr.new-inquiry:hover{background:rgba(252,209,16,.12)}
+tbody tr.contacted-row{background:rgba(223,111,17,.06);border-left:3px solid var(--orange)}
+tbody tr.contacted-row:hover{background:rgba(223,111,17,.12)}
+td{padding:15px 14px;vertical-align:middle}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;font-size:.8rem;font-weight:700;border-radius:6px}
+.rank-1{background:var(--yellow);color:var(--black)}
+.rank-2{background:#aaa;color:var(--black)}
+.rank-3{background:#c47c3a;color:var(--white)}
+.rank-top10{background:var(--orange);color:var(--black)}
+.rank-other{background:#1f1f1f;color:#888;border:1px solid #333}
+.artist-name{font-weight:700;color:var(--white);font-size:.95rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.booked-badge{display:inline-block;background:var(--green);color:var(--white);font-size:.6rem;font-weight:900;padding:3px 7px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase}
+.new-badge{display:inline-block;background:var(--yellow);color:var(--black);font-size:.6rem;font-weight:900;padding:3px 7px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;animation:pulse 2s ease-in-out infinite}
+.contacted-badge{display:inline-block;background:var(--orange);color:var(--white);font-size:.6rem;font-weight:900;padding:3px 7px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.tier-badge{display:inline-block;padding:4px 10px;border-radius:4px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tier-top{background:var(--orange);color:var(--black)}
+.tier-mid{background:var(--teal);color:var(--black)}
+.tier-emerging{background:var(--purple);color:var(--white)}
+.tier-none{background:#333;color:#777}
+.local-badge{display:inline-block;padding:4px 10px;border-radius:4px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;background:var(--teal);color:var(--black)}
+.metric{font-weight:700;font-size:1rem;color:var(--cream)}
+.metric-sub{font-size:.65rem;color:#666;display:block;font-weight:400}
+.score-val{font-weight:800;font-size:1.05rem;color:var(--orange)}
+.date-cell{font-size:.8rem;color:var(--yellow);font-weight:600}
+.status-contacted{color:var(--orange);font-weight:700}
+.social-links{display:flex;gap:5px}
+.social-link{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:#1a1a1a;border:1px solid #333;border-radius:5px;color:var(--cream);text-decoration:none;font-size:.8rem;transition:all .2s ease}
+.social-link:hover{background:var(--orange);border-color:var(--orange);color:var(--black);transform:translateY(-2px)}
+.expanded-row{display:none}
+.expanded-row.show{display:table-row}
+.expanded-content{padding:24px 20px;background:#111;border-top:2px solid var(--orange)}
+.expanded-content h3{font-size:1rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin-bottom:10px}
+.expanded-content p{font-size:.88rem;line-height:1.75;color:rgba(244,231,212,.75);font-weight:400;white-space:pre-wrap}
+.contact-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #222}
+.contact-item{font-size:.82rem;color:var(--teal);display:flex;align-items:center;gap:6px}
+.no-results{text-align:center;padding:60px 20px;font-size:1rem;color:#555;font-weight:600}
+.loading{text-align:center;padding:60px 20px;font-size:1.2rem;color:var(--orange);font-weight:700}
+.error{text-align:center;padding:60px 20px;font-size:1rem;color:#f44;font-weight:600}
+footer{text-align:center;padding:40px 20px 30px;margin:50px -24px 0;background:var(--black);border-top:4px solid var(--orange);font-size:.82rem;color:rgba(244,231,212,.4)}
+footer strong{color:var(--orange)}
+@media (max-width:768px){.header-inner{flex-direction:column;align-items:flex-start}.logo-block h1{font-size:1.6rem}.controls{flex-direction:column}table{font-size:.8rem}td,th{padding:11px 9px}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div class="header-inner">
+<div class="logo-block">
+<h1>The Listening Booth</h1>
+<div class="dash-label">Artist Booking Dashboard · Lewes, DE</div>
+</div>
+<div class="stats-row">
+<div class="stat-chip"><div class="num" id="totalArtists">0</div><div class="lbl">Artists</div></div>
+<div class="stat-chip booked-chip"><div class="num" id="bookedCount">0</div><div class="lbl">Booked</div></div>
+<div class="stat-chip"><div class="num" id="newCount">0</div><div class="lbl">New</div></div>
+<div class="stat-chip"><div class="num" id="localCount">0</div><div class="lbl">Local</div></div>
+<div class="stat-chip"><div class="num" id="topTierCount">0</div><div class="lbl">Top Tier</div></div>
+<div class="stat-chip"><div class="num" id="midTierCount">0</div><div class="lbl">Mid Tier</div></div>
+<div class="stat-chip"><div class="num" id="emergingCount">0</div><div class="lbl">Emerging</div></div>
+</div>
+</div>
+</header>
+<div class="controls">
+<div class="search-wrap">
+<input type="text" id="searchInput" placeholder="Search artists, genres, locations...">
+</div>
+<div class="filters">
+<button class="filter-btn active" data-filter="all">All</button>
+<button class="filter-btn booked-filter" data-filter="booked">✓ Booked</button>
+<button class="filter-btn new-filter" data-filter="new">⭐ New Inquiries</button>
+<button class="filter-btn contacted-filter" data-filter="contacted">📧 Contacted</button>
+<button class="filter-btn" data-filter="local">🏠 Local</button>
+<button class="filter-btn opener-filter" data-filter="openers">🎸 Potential Openers</button>
+<button class="filter-btn" data-filter="Top Tier">Top Tier</button>
+<button class="filter-btn" data-filter="Mid Tier">Mid Tier</button>
+<button class="filter-btn" data-filter="Emerging">Emerging</button>
+<button class="filter-btn" data-filter="No Data">No Data</button>
+</div>
+</div>
+<div class="table-wrap">
+<div id="loading" class="loading">Loading artist data...</div>
+<div id="errorMsg" class="error" style="display:none"></div>
+<table style="display:none">
+<thead>
+<tr>
+<th class="sortable" data-sort="rank">#</th>
+<th class="sortable" data-sort="name">Artist</th>
+<th class="sortable" data-sort="tier">Tier</th>
+<th class="sortable" data-sort="local">Local</th>
+<th class="sortable" data-sort="spotify">Spotify</th>
+<th class="sortable" data-sort="instagram">Instagram</th>
+<th class="sortable" data-sort="score">Score</th>
+<th class="sortable" data-sort="inquiry_date">Inquiry Date</th>
+<th class="sortable" data-sort="activity">Status</th>
+<th>Links</th>
+</tr>
+</thead>
+<tbody id="artistTableBody"></tbody>
+</table>
+<div id="noResults" class="no-results" style="display:none">No artists found 🎵</div>
+</div>
+<footer>
+<p><strong>The Listening Booth</strong> &nbsp;·&nbsp; music&amp; coffee&amp; wine&amp; community.</p>
+<p style="margin-top:6px">Updated March 2026 &nbsp;·&nbsp; www.listeningbooth.com</p>
+</footer>
+</div>
+<script>
+var ARTISTS_DATA,currentFilter="all",currentSort={column:"score",direction:"desc"},filteredArtists;
+fetch("artists_data.json").then(function(r){return r.json()}).then(function(data){ARTISTS_DATA=data;filteredArtists=ARTISTS_DATA.slice();document.getElementById("loading").style.display="none";document.querySelector("table").style.display="table";updateStats();renderTable();setupListeners()}).catch(function(err){console.error("Error loading data:",err);document.getElementById("loading").style.display="none";var errorMsg=document.getElementById("errorMsg");errorMsg.textContent="Error loading artist data. Please make sure artists_data.json is in the same directory.";errorMsg.style.display="block"});
+function updateStats(){document.getElementById("totalArtists").textContent=ARTISTS_DATA.length;document.getElementById("bookedCount").textContent=ARTISTS_DATA.filter(function(a){return a.is_booked}).length;document.getElementById("newCount").textContent=ARTISTS_DATA.filter(function(a){return a.is_new}).length;document.getElementById("localCount").textContent=ARTISTS_DATA.filter(function(a){return a.local}).length;document.getElementById("topTierCount").textContent=ARTISTS_DATA.filter(function(a){return"Top Tier"===a.tier}).length;document.getElementById("midTierCount").textContent=ARTISTS_DATA.filter(function(a){return"Mid Tier"===a.tier}).length;document.getElementById("emergingCount").textContent=ARTISTS_DATA.filter(function(a){return"Emerging"===a.tier}).length}
+function setupListeners(){document.getElementById("searchInput").addEventListener("input",function(e){filterAndRender(currentFilter,e.target.value.toLowerCase())});document.querySelectorAll(".filter-btn").forEach(function(btn){btn.addEventListener("click",function(e){document.querySelectorAll(".filter-btn").forEach(function(b){b.classList.remove("active")});e.target.classList.add("active");currentFilter=e.target.dataset.filter;filterAndRender(currentFilter,document.getElementById("searchInput").value.toLowerCase())})});document.querySelectorAll("th.sortable").forEach(function(th){th.addEventListener("click",function(){var col=th.dataset.sort;currentSort={column:col,direction:currentSort.column===col&&"desc"===currentSort.direction?"asc":"desc"};renderTable()})})}
+function filterAndRender(filter,query){query=query||"";filteredArtists=ARTISTS_DATA.filter(function(a){var matchFilter=true;if("booked"===filter)matchFilter=a.is_booked;else if("new"===filter)matchFilter=a.is_new;else if("contacted"===filter)matchFilter=(a.activity||"").toLowerCase()==="contacted";else if("local"===filter)matchFilter=a.local;else if("openers"===filter)matchFilter=!a.is_booked&&a.score>0&&a.score<=2000;else if("all"!==filter)matchFilter=a.tier===filter;var matchSearch=!query||a.name.toLowerCase().includes(query)||a.notes.toLowerCase().includes(query)||(a.activity||"").toLowerCase().includes(query);return matchFilter&&matchSearch});renderTable()}
+function sortArtists(list){var col=currentSort.column,dir="asc"===currentSort.direction?1:-1;return list.slice().sort(function(a,b){var av="rank"===col?ARTISTS_DATA.indexOf(a):a[col],bv="rank"===col?ARTISTS_DATA.indexOf(b):b[col];if(col==="inquiry_date"){if(!av&&!bv)return 0;if(!av)return 1;if(!bv)return -1;return av.localeCompare(bv)*dir}if(col==="local"){return((av?1:0)-(bv?1:0))*dir}return"string"==typeof av?av.localeCompare(bv)*dir:(av-bv)*dir})}
+function fmt(n){return n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(1)+"K":n.toString()}
+function formatDate(dateStr){if(!dateStr)return "";var parts=dateStr.split("-");if(parts.length!==3)return dateStr;var year=parseInt(parts[0]);var month=parseInt(parts[1])-1;var day=parseInt(parts[2]);var date=new Date(year,month,day);var months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];return months[date.getMonth()]+" "+date.getDate()+", "+date.getFullYear()}
+function renderTable(){var tbody=document.getElementById("artistTableBody"),noRes=document.getElementById("noResults");document.querySelectorAll("th.sortable").forEach(function(th){th.classList.remove("sorted-asc","sorted-desc");th.dataset.sort===currentSort.column&&th.classList.add("sorted-"+currentSort.direction)});if(!filteredArtists.length){tbody.innerHTML="";noRes.style.display="block";return}noRes.style.display="none";var fragment=document.createDocumentFragment();sortArtists(filteredArtists).forEach(function(artist,i){var idx=ARTISTS_DATA.indexOf(artist),rank=idx+1;var mainRow=document.createElement("tr");mainRow.className=artist.is_booked?"booked-row":artist.is_new?"new-inquiry":"";mainRow.onclick=function(){toggleExpand(idx)};var rankCell=document.createElement("td");var rankBadge=document.createElement("span");rankBadge.className="rank-badge "+(rank===1?"rank-1":rank===2?"rank-2":rank===3?"rank-3":rank<=10?"rank-top10":"rank-other");rankBadge.textContent=rank;rankCell.appendChild(rankBadge);mainRow.appendChild(rankCell);var nameCell=document.createElement("td");var nameSpan=document.createElement("span");nameSpan.className="artist-name";nameSpan.textContent=artist.name;if(artist.is_booked){var bookedBadge=document.createElement("span");bookedBadge.className="booked-badge";bookedBadge.textContent="BOOKED";nameSpan.appendChild(document.createTextNode(" "));nameSpan.appendChild(bookedBadge)}if(artist.is_new){var newBadge=document.createElement("span");newBadge.className="new-badge";newBadge.textContent="NEW";nameSpan.appendChild(document.createTextNode(" "));nameSpan.appendChild(newBadge)}var isContacted=(artist.activity||"").toLowerCase()==="contacted";if(isContacted&&!artist.is_booked){var contactedBadge=document.createElement("span");contactedBadge.className="contacted-badge";contactedBadge.textContent="CONTACTED";nameSpan.appendChild(document.createTextNode(" "));nameSpan.appendChild(contactedBadge)}nameCell.appendChild(nameSpan);mainRow.appendChild(nameCell);var tierCell=document.createElement("td");var tierBadge=document.createElement("span");tierBadge.className="tier-badge "+{"Top Tier":"tier-top","Mid Tier":"tier-mid",Emerging:"tier-emerging","No Data":"tier-none"}[artist.tier];tierBadge.textContent=artist.tier;tierCell.appendChild(tierBadge);mainRow.appendChild(tierCell);var localCell=document.createElement("td");if(artist.local){var localBadge=document.createElement("span");localBadge.className="local-badge";localBadge.textContent="LOCAL";localCell.appendChild(localBadge)}else{localCell.textContent="-"}mainRow.appendChild(localCell);var spotifyCell=document.createElement("td");if(artist.spotify>0){var metricSpan=document.createElement("span");metricSpan.className="metric";metricSpan.textContent=fmt(artist.spotify);var subSpan=document.createElement("span");subSpan.className="metric-sub";subSpan.textContent="monthly";spotifyCell.appendChild(metricSpan);spotifyCell.appendChild(subSpan)}else{spotifyCell.textContent="-"}mainRow.appendChild(spotifyCell);var instaCell=document.createElement("td");if(artist.instagram_followers>0){var metricSpan=document.createElement("span");metricSpan.className="metric";metricSpan.textContent=fmt(artist.instagram_followers);var subSpan=document.createElement("span");subSpan.className="metric-sub";subSpan.textContent="followers";instaCell.appendChild(metricSpan);instaCell.appendChild(subSpan)}else{instaCell.textContent="-"}mainRow.appendChild(instaCell);var scoreCell=document.createElement("td");var scoreSpan=document.createElement("span");scoreSpan.className="score-val";scoreSpan.textContent=fmt(artist.score);scoreCell.appendChild(scoreSpan);mainRow.appendChild(scoreCell);var dateCell=document.createElement("td");if(artist.inquiry_date){var dateSpan=document.createElement("span");dateSpan.className="date-cell";dateSpan.textContent=formatDate(artist.inquiry_date);dateCell.appendChild(dateSpan)}else{dateCell.textContent="-"}mainRow.appendChild(dateCell);var activityCell=document.createElement("td");activityCell.style.fontSize=".8rem";if(isContacted){activityCell.className="status-contacted"}else{activityCell.style.color=artist.is_booked?"var(--green)":"#999";activityCell.style.fontWeight=artist.is_booked?"700":"400"}activityCell.textContent=artist.activity||"—";mainRow.appendChild(activityCell);var linksCell=document.createElement("td");var linksDiv=document.createElement("div");linksDiv.className="social-links";if(artist.website){var a=document.createElement("a");a.href=artist.website;a.target="_blank";a.className="social-link";a.title="Website";a.textContent="🌐";a.onclick=function(e){e.stopPropagation()};linksDiv.appendChild(a)}if(artist.instagram){var a=document.createElement("a");a.href="https://instagram.com/"+artist.instagram.replace("@","");a.target="_blank";a.className="social-link";a.title="Instagram";a.textContent="📸";a.onclick=function(e){e.stopPropagation()};linksDiv.appendChild(a)}if(artist.facebook){var a=document.createElement("a");a.href=artist.facebook;a.target="_blank";a.className="social-link";a.title="Facebook";a.textContent="📘";a.onclick=function(e){e.stopPropagation()};linksDiv.appendChild(a)}if(artist.email){var a=document.createElement("a");a.href="mailto:"+artist.email;a.className="social-link";a.title="Email";a.textContent="✉️";a.onclick=function(e){e.stopPropagation()};linksDiv.appendChild(a)}linksCell.appendChild(linksDiv);mainRow.appendChild(linksCell);fragment.appendChild(mainRow);var expandRow=document.createElement("tr");expandRow.className="expanded-row";expandRow.id="expanded-"+idx;var expandCell=document.createElement("td");expandCell.colSpan=10;var expandContent=document.createElement("div");expandContent.className="expanded-content";var h3=document.createElement("h3");h3.textContent="Artist Details";expandContent.appendChild(h3);var p=document.createElement("p");p.textContent=artist.notes||"No additional information available.";expandContent.appendChild(p);if(artist.email||artist.phone){var contactRow=document.createElement("div");contactRow.className="contact-row";if(artist.email){var emailSpan=document.createElement("span");emailSpan.className="contact-item";emailSpan.textContent="✉️ "+artist.email;contactRow.appendChild(emailSpan)}if(artist.phone){var phoneSpan=document.createElement("span");phoneSpan.className="contact-item";phoneSpan.textContent="📞 "+artist.phone;contactRow.appendChild(phoneSpan)}expandContent.appendChild(contactRow)}expandCell.appendChild(expandContent);expandRow.appendChild(expandCell);fragment.appendChild(expandRow)});tbody.innerHTML="";tbody.appendChild(fragment)}
+function toggleExpand(idx){var row=document.getElementById("expanded-"+idx),parent=row.previousElementSibling;document.querySelectorAll(".expanded-row.show").forEach(function(r){if(r!==row){r.classList.remove("show");r.previousElementSibling.classList.remove("expanded")}});row.classList.toggle("show");parent.classList.toggle("expanded")}
+</script>
+</body>
+</html>
